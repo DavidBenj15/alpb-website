@@ -13,13 +13,16 @@ function useQueryWidgets() {
   const loadWidgets = async () => {
     try {
       const fetchedWidgets = await fetchWidgets();
+      // Check if the user is a Widget Developer
       const isDev = userRole == "Widget Developer" ? true : false;
+      // Filter widgets based on the user role and developer IDs
       const filteredWidgets = fetchedWidgets.filter((widget) =>
         isDev && userId && widget.developerIds?.includes(userId)
           ? widget
           : !isDev,
       );
       setWidgets([...filteredWidgets]);
+      // Fetch favorite widget IDs for the user
       const favWidgetIds = await getFavorites(parseInt(userId));
       setFavWidgetIds(favWidgetIds);
     } catch (error) {

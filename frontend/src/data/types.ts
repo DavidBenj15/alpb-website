@@ -1,3 +1,4 @@
+// The shape of the data for a widget
 export type WidgetType = {
   id: number;
   name: string;

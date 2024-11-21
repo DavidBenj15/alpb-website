@@ -108,7 +108,7 @@ export function SignupForm() {
         id="account-type"
         label="I am a..."
         required={true}
-        options={["Widget Developer", "league", "master"]}
+        options={["Widget Developer", "league", "master"]} // Options for account type
       />
       <SubmitButton btnText="Sign up" />
       <p className={`${submitStatus?.textClass} mb-5`} role="status">

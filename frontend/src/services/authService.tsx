@@ -1,9 +1,11 @@
 import AWS from "aws-sdk";
 
+// Initialize the Cognito service provider with the specified region
 const cognito = new AWS.CognitoIdentityServiceProvider({
   region: "us-east-2",
 });
 
+// Function to sign up a new user
 export const signUpUser = async (
   email: string,
   password: string,
@@ -38,6 +40,7 @@ export const signUpUser = async (
   }
 };
 
+// Function to sign in an existing user
 export const signInUser = async (email: string, password: string) => {
   const params = {
     AuthFlow: "USER_PASSWORD_AUTH",
@@ -60,6 +63,7 @@ export const signInUser = async (email: string, password: string) => {
   }
 };
 
+// Function to confirm user sign up with a confirmation code
 export const confirmSignUp = async (
   email: string,
   confirmationCode: string,

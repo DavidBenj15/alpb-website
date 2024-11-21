@@ -154,7 +154,6 @@ export async function getUserData(userCognitoID) {
     }
 }
 
-
 export async function createApprovedWidget({ widget_name, description, visibility }) {
     try {
         console.log("widget name:", widget_name)
@@ -172,14 +171,12 @@ export async function createApprovedWidget({ widget_name, description, visibilit
     }
 }
 
-
 export async function getPendingWidgets() {
     const query = `
         SELECT * FROM requests`;
     const result = await pool.query(query);
     return result.rows;
 }
-
 
 export async function getAllWidgets(widget_name, categories, page, limit) {
     // When we select * from widgets,

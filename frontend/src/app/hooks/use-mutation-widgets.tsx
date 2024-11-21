@@ -6,8 +6,8 @@ import { addFavorite, removeFavorite } from "@/api/user";
 import { useStore } from "@nanostores/react";
 
 function useMutationWidgets() {
-  const { userId } = useAuth();
-  const favWidgetIds = useStore($favWidgetIds);
+  const { userId } = useAuth(); // Get the userId from the AuthContext
+  const favWidgetIds = useStore($favWidgetIds); // Get the favorite widget IDs from the store
 
   const editWidget = async ({
     id,
@@ -24,7 +24,7 @@ function useMutationWidgets() {
         redirectLink,
         visibility,
       });
-      updateStoreWidget({ id, name, description, visibility, redirectLink });
+      updateStoreWidget({ id, name, description, visibility, redirectLink }); // Update the widget in the store
     } catch (error) {
       console.error("Error updating widget:", error);
     }
@@ -32,14 +32,14 @@ function useMutationWidgets() {
 
   const toggleFavWidget = async (widgetId: number) => {
     try {
-      const id = parseInt(userId);
+      const id = parseInt(userId); // Convert userId to an integer
       if (favWidgetIds.has(widgetId)) {
-        await removeFavorite(id, widgetId);
-        removeFavWidgetId(widgetId);
+        await removeFavorite(id, widgetId); // Remove widget from favorites
+        removeFavWidgetId(widgetId); // Update the store to reflect removal
         return "removed";
       } else {
-        await addFavorite(id, widgetId);
-        addFavWidgetId(widgetId);
+        await addFavorite(id, widgetId); // Add widget to favorites
+        addFavWidgetId(widgetId); // Update the store to reflect addition
         return "added";
       }
     } catch (error) {
@@ -52,6 +52,5 @@ function useMutationWidgets() {
     toggleFavWidget
   };
 }
-
 
 export default useMutationWidgets;

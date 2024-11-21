@@ -17,6 +17,7 @@ export default function SignIn() {
           <div>
             <p className="text-sm flex justify-center mb-5">
               {"Don't have an account?"}
+              {/* Link to the registration page */}
               <Link href="/register-account" className="text-blue-600 ml-3">
                 Register
               </Link>

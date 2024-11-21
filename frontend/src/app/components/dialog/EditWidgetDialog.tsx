@@ -1,3 +1,11 @@
+/**
+ * EditWidgetDialog Component
+ *
+ * A dialog for editing widget details. It allows users to update a widget's title, description,
+ * deployment link, and visibility. Changes are saved via the `editWidget` mutation, and the dialog
+ * can be closed using the `onClose` callback.
+ */
+
 import {
   AlertDialog,
   AlertDialogAction,
@@ -7,37 +15,56 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from "@/app/components/ui/alert-dialog";
-import { Input } from "../ui/input";
-import { Label } from "../ui/label";
-import { Checkbox } from "../ui/checkbox";
-import { useState } from "react";
-import { useStore } from "@nanostores/react";
-import { $targetWidget } from "@/lib/store";
-import useMutationWidgets from "@/app/hooks/use-mutation-widgets";
+} from "@/app/components/ui/alert-dialog"; // UI components for the alert dialog
+import { Input } from "../ui/input"; // Input component
+import { Label } from "../ui/label"; // Label component
+import { Checkbox } from "../ui/checkbox"; // Checkbox component
+import { useState } from "react"; // React state management
+import { useStore } from "@nanostores/react"; // Hook to access nanostores
+import { $targetWidget } from "@/lib/store"; // Store to manage the target widget being edited
+import useMutationWidgets from "@/app/hooks/use-mutation-widgets"; // Hook for widget mutations
 
+/**
+ * Props for the EditWidgetDialog component.
+ * @property {boolean} isOpen - Whether the dialog is open.
+ * @property {() => void} onClose - Callback to close the dialog.
+ */
 interface EditWidgetDialogProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
+/**
+ * EditWidgetDialog Component
+ *
+ * @param {EditWidgetDialogProps} props - Props for the component.
+ * @returns {JSX.Element} - The JSX representation of the dialog.
+ */
 const EditWidgetDialog: React.FC<EditWidgetDialogProps> = ({
   isOpen,
   onClose,
 }) => {
+  // Access the target widget from the store
   const targetWidget = useStore($targetWidget);
+
+  // Local state for widget fields
   const [name, setName] = useState(targetWidget.name || "");
   const [description, setDescription] = useState(
-    targetWidget.description || "",
+    targetWidget.description || ""
   );
   const [deploymentLink, setDeploymentLink] = useState(
-    targetWidget.redirectLink || "",
+    targetWidget.redirectLink || ""
   );
   const [visibility, setVisibility] = useState(
-    targetWidget.visibility || "Private",
+    targetWidget.visibility || "Private"
   );
-  const { editWidget } = useMutationWidgets();
 
+  const { editWidget } = useMutationWidgets(); // Hook for editing widgets
+
+  /**
+   * Handles saving the updated widget details.
+   * Calls the `editWidget` mutation and closes the dialog on success.
+   */
   const handleSave = async () => {
     try {
       await editWidget({
@@ -47,7 +74,7 @@ const EditWidgetDialog: React.FC<EditWidgetDialogProps> = ({
         redirectLink: deploymentLink,
         visibility,
       });
-      onClose();
+      onClose(); // Close the dialog after saving
     } catch (error) {
       console.error("Error updating widget:", error);
     }
@@ -134,3 +161,4 @@ const EditWidgetDialog: React.FC<EditWidgetDialogProps> = ({
 };
 
 export default EditWidgetDialog;
+

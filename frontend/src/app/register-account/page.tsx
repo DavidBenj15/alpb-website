@@ -1,6 +1,5 @@
 import { SignupForm } from "./SignupForm";
 import Navbar from "../components/navbar/Navbar";
-import ProtectedRoute from "../components/ProtectedRoutes";
 
 export default function Home() {
   return (
@@ -13,7 +12,7 @@ export default function Home() {
           </div>
 
           <main className="flex justify-center w-full">
-            <SignupForm />
+            <SignupForm /> 
           </main>
         </div>
       </div>
