@@ -13,7 +13,13 @@ import { fetchWidgets } from "../../../api/widget"; // API call to fetch widgets
 import { useAuth } from "@/app/contexts/AuthContext"; // Custom hook to get user authentication state
 import { WidgetType } from "@/data/types"; // Type definition for widget data
 import useQueryWidgets from "@/app/hooks/use-query-widgets"; // Custom hook to query widgets
-import { $favWidgetIds, $filtersVersion, $filters, $widgetQuery, $widgetsVersion } from "@/lib/store"; // Nanostores for managing application state
+import {
+  $favWidgetIds,
+  $filtersVersion,
+  $filters,
+  $widgetQuery,
+  $widgetsVersion,
+} from "@/lib/store"; // Nanostores for managing application state
 import { useStore } from "@nanostores/react"; // Hook to access the store
 
 /**
@@ -43,7 +49,7 @@ export default function Widgets() {
    */
   const setUserRole = async () => {
     try {
-      if (userRole === "Widget Developer") {
+      if (userRole.toLowerCase() === "widget developer") {
         setIsDev(true); // Set to true if the user is a widget developer
       } else {
         setIsDev(false); // Set to false for other roles
@@ -68,34 +74,47 @@ export default function Widgets() {
    * @returns {WidgetType[]} - Filtered list of widgets based on the active filters.
    */
   const filteredWidgets = useMemo(() => {
-    return widgets
-      .filter((widget) => {
-        const lowerName = widget.name.toLowerCase();
-        const lowerDescription = widget.description?.toLowerCase();
-        const lowerQuery = widgetQuery.toLowerCase();
+    return widgets.filter((widget) => {
+      const lowerName = widget.name.toLowerCase();
+      const lowerDescription = widget.description?.toLowerCase();
+      const lowerQuery = widgetQuery.toLowerCase();
 
-        // Check if widget name or description matches the search query
-        if (!(lowerName.includes(lowerQuery) || lowerDescription?.includes(lowerQuery))) {
-          return false;
+      // Check if widget name or description matches the search query
+      if (
+        !(
+          lowerName.includes(lowerQuery) ||
+          lowerDescription?.includes(lowerQuery)
+        )
+      ) {
+        return false;
+      }
+
+      // If "favorites" filter is enabled, only show widgets in the favorites list
+      if (filters.has("favorites") && !favWidgetIds.has(widget.id)) {
+        return false;
+      }
+
+      // If the user is a widget developer, only show widgets they created
+      if (isDev) {
+        if (userId && widget.developerIds?.includes(userId)) {
+          return true; // Widget is created by the current user
         }
+        return false; // Widget is not created by the current user
+      }
 
-        // If "favorites" filter is enabled, only show widgets in the favorites list
-        if (filters.has("favorites") && !favWidgetIds.has(widget.id)) {
-          return false;
-        }
-
-        // If the user is a widget developer, only show widgets they created
-        if (isDev) {
-          if (userId && widget.developerIds?.includes(userId)) {
-            return true; // Widget is created by the current user
-          }
-          return false; // Widget is not created by the current user
-        }
-
-        // Show all widgets that match the search and filtering criteria
-        return true;
-      });
-  }, [filtersVersion, widgetsVersion, widgets, favWidgetIds, widgetQuery, isDev, userId, filters]);
+      // Show all widgets that match the search and filtering criteria
+      return true;
+    });
+  }, [
+    filtersVersion,
+    widgetsVersion,
+    widgets,
+    favWidgetIds,
+    widgetQuery,
+    isDev,
+    userId,
+    filters,
+  ]);
 
   // Display loading message while widgets are being fetched
   if (loading) {
@@ -105,17 +124,15 @@ export default function Widgets() {
   return (
     <div className="grid gap-10 p-4 sm:grid-cols-1 md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 3xl:grid-cols-4">
       {/* Map through filtered widgets and display them */}
-      {filteredWidgets
-        .map((widget) => (
-          <Widget
-            key={widget.id}
-            {...widget} // Spread the widget properties as props
-            isDev={isDev} // Pass developer status
-            visibility={widget.visibility ?? "Private"} // Pass visibility status (default to "Private")
-            isFavorite={favWidgetIds.has(widget.id)} // Pass whether the widget is in favorites
-          />
-        ))}
+      {filteredWidgets.map((widget) => (
+        <Widget
+          key={widget.id}
+          {...widget} // Spread the widget properties as props
+          isDev={isDev} // Pass developer status
+          visibility={widget.visibility ?? "Private"} // Pass visibility status (default to "Private")
+          isFavorite={favWidgetIds.has(widget.id)} // Pass whether the widget is in favorites
+        />
+      ))}
     </div>
   );
 }
-

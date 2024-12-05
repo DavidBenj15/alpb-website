@@ -14,7 +14,7 @@ function useQueryWidgets() {
     try {
       const fetchedWidgets = await fetchWidgets();
       // Check if the user is a Widget Developer
-      const isDev = userRole == "Widget Developer" ? true : false;
+      const isDev = userRole.toLowerCase() == "widget developer" ? true : false;
       // Filter widgets based on the user role and developer IDs
       const filteredWidgets = fetchedWidgets.filter((widget) =>
         isDev && userId && widget.developerIds?.includes(userId)
@@ -32,7 +32,7 @@ function useQueryWidgets() {
 
   useEffect(() => {
     loadWidgets();
-  }, [userId]);     // eslint-disable-line
+  }, [userId]); // eslint-disable-line
 
   return { widgets };
 }

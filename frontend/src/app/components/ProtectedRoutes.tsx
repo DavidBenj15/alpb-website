@@ -3,14 +3,15 @@
 /**
  * ProtectedRoute Component
  *
- * A higher-order component (HOC) that wraps around protected content to enforce authentication 
- * and optional role-based access control. Redirects unauthenticated users to the sign-in page 
+ * A higher-order component (HOC) that wraps around protected content to enforce authentication
+ * and optional role-based access control. Redirects unauthenticated users to the sign-in page
  * and unauthorized users to an unauthorized access page.
  */
 
 import { useEffect } from "react"; // React hook for managing side effects
 import { useRouter } from "next/navigation"; // Next.js router for client-side navigation
 import { useAuth } from "../contexts/AuthContext"; // Custom authentication context
+import Loading from "./layout/loading";
 
 /**
  * Props for the ProtectedRoute Component
@@ -47,7 +48,7 @@ const ProtectedRoute = ({ role, children }: ProtectedRouteProps) => {
 
   // Display a loading message while authentication state is being determined
   if (loading) {
-    return <p>Loading...</p>;
+    return <Loading />;
   }
 
   // Render the children if the user is authenticated
@@ -55,4 +56,3 @@ const ProtectedRoute = ({ role, children }: ProtectedRouteProps) => {
 };
 
 export default ProtectedRoute;
-

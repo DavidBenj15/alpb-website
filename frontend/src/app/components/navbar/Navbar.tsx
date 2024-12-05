@@ -47,7 +47,7 @@ export default function Navbar({ initials }: InputProps) {
       <div className="flex-grow" />
 
       {/* Logo Button */}
-      <LogoButton />
+      <LogoButton width={50} height={50} />
 
       {/* Spacer to center the profile button */}
       <div className="flex-grow" />
@@ -62,4 +62,3 @@ export default function Navbar({ initials }: InputProps) {
     </div>
   );
 }
-

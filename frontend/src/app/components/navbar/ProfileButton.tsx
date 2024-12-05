@@ -1,7 +1,7 @@
 /**
  * ProfileButton Component
  *
- * A reusable button component that displays user initials. 
+ * A reusable button component that displays user initials.
  * It is styled as a circular button, making it ideal for use in navigation bars or user menus.
  */
 
@@ -38,4 +38,3 @@ export default function ProfileButton({ initials }: InputProps) {
     </button>
   );
 }
-

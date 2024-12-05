@@ -1,5 +1,10 @@
 import { WidgetType } from "@/data/types";
-import { $favWidgetIds, addFavWidgetId, removeFavWidgetId, updateStoreWidget } from "@/lib/store";
+import {
+  $favWidgetIds,
+  addFavWidgetId,
+  removeFavWidgetId,
+  updateStoreWidget,
+} from "@/lib/store";
 import { updateWidget } from "@/api/widget";
 import { useAuth } from "../contexts/AuthContext";
 import { addFavorite, removeFavorite } from "@/api/user";
@@ -15,6 +20,7 @@ function useMutationWidgets() {
     description,
     redirectLink,
     visibility,
+    imageUrl
   }: WidgetType) => {
     try {
       const updatedWidget = await updateWidget({
@@ -23,8 +29,9 @@ function useMutationWidgets() {
         description,
         redirectLink,
         visibility,
+        imageUrl
       });
-      updateStoreWidget({ id, name, description, visibility, redirectLink }); // Update the widget in the store
+      updateStoreWidget({ id, name, description, visibility, redirectLink, imageUrl }); // Update the widget in the store
     } catch (error) {
       console.error("Error updating widget:", error);
     }
@@ -49,7 +56,7 @@ function useMutationWidgets() {
 
   return {
     editWidget,
-    toggleFavWidget
+    toggleFavWidget,
   };
 }
 

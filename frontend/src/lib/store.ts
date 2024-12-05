@@ -1,5 +1,9 @@
 import { atom } from "nanostores";
 import { WidgetType } from "@/data/types";
+import { logger } from '@nanostores/logger';
+
+// Allow debug messages
+const DEBUG = false;
 
 const emptyWidget: WidgetType = {
   id: -1,
@@ -41,6 +45,7 @@ export function updateStoreWidget({
   description,
   visibility,
   redirectLink,
+  imageUrl
 }: WidgetType) {
   $widgets.set(
     $widgets.get().map((widget) => {
@@ -51,6 +56,7 @@ export function updateStoreWidget({
           ...(description !== undefined && { description }),
           ...(visibility !== undefined && { visibility }),
           ...(redirectLink !== undefined && { redirectLink }),
+          ...(imageUrl !== undefined && { imageUrl }),
         };
       } else {
         return widget;
@@ -128,3 +134,8 @@ export function incrementFiltersVersion() {
 export function incrementWidgetsVersion() {
   $widgetsVersion.set($widgetsVersion.get() + 1);
 }
+
+// Logger for nanostores
+let destroy = DEBUG && logger({
+  'Widgets': $widgets
+})

@@ -4,7 +4,7 @@ import Navbar from "../components/navbar/Navbar";
 
 export default function page() {
   return (
-    <body>
+    <div>
       <Navbar initials={"DB"} /> {/* Navbar component with initials prop */}
       <div className="flex flex-col justify-center items-center m-20">
         <h1>Thank you!</h1>
@@ -12,6 +12,6 @@ export default function page() {
         <CiCircleCheck size={100} className="m-5" /> {/* Checkmark icon */}
         <p>Look out for an email from us for next steps.</p>
       </div>
-    </body>
+    </div>
   );
 }

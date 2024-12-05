@@ -41,7 +41,6 @@ export function WidgetForm() {
         status: "pending", // Default status for new widgets
       };
       const result = await registerWidget(widgetData, idToken); // The data will be sent to the backend
-      console.log(result); // Handle success (e.g., show a message or redirect)
       router.push("/form-submitted"); // Redirect on success
     } catch (error) {
       console.error("Error submitting form:", error);

@@ -1,7 +1,7 @@
 /**
  * SelectField Component
  *
- * A reusable select dropdown component for forms. It includes support for labels, 
+ * A reusable select dropdown component for forms. It includes support for labels,
  * required fields, a list of options, and optional subtext for additional information.
  */
 
@@ -65,4 +65,3 @@ export default function SelectField({
     </div>
   );
 }
-

@@ -94,7 +94,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setUserId,
         setIdToken,
         setUserRole,
-        setAccessToken
+        setAccessToken,
       }}
     >
       {children}
