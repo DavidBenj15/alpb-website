@@ -5,6 +5,11 @@
 
 import { jwtDecode } from "jwt-decode"; // For decoding JWT tokens
 import { WidgetType } from "@/data/types"; // Importing WidgetType interface
+import dotenv from "dotenv";
+
+dotenv.config();
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
 /**
  * Interface for Widget Data used in registration.
@@ -39,7 +44,7 @@ export const registerWidget = async (
       userId,
     };
 
-    const response = await fetch("http://alpb-analytics.com/api/register-widget", {
+    const response = await fetch(`${API_URL}/api/register-widget`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -79,7 +84,7 @@ export interface Request {
  */
 export const fetchPendingWidgets = async (): Promise<Request[]> => {
   try {
-    const response = await fetch("http://alpb-analytics.com/api/pending-widgets");
+    const response = await fetch(`${API_URL}/api/pending-widgets`);
     if (!response.ok) {
       throw new Error(`Error: ${response.statusText}`);
     }
@@ -100,12 +105,11 @@ export const fetchPendingWidgets = async (): Promise<Request[]> => {
 export const approveWidget = async (requestId: string): Promise<string> => {
   try {
     //TODO change this back to deployed server
-    const response = await fetch("http://alpb-analytics.com/api/approve-widget", {
+    const response = await fetch(`${API_URL}/api/approve-widget`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ requestId }),
     });
-    console.log({response})
 
     if (!response.ok) {
       const data = await response.json();
@@ -129,7 +133,7 @@ export const approveWidget = async (requestId: string): Promise<string> => {
  */
 export const declineWidget = async (requestId: string): Promise<string> => {
   try {
-    const response = await fetch("http://alpb-analytics.com/api/decline-widget", {
+    const response = await fetch(`${API_URL}/api/decline-widget`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ requestId }),
@@ -155,7 +159,7 @@ export const declineWidget = async (requestId: string): Promise<string> => {
  */
 export const fetchWidgets = async (): Promise<WidgetType[]> => {
   try {
-    const response = await fetch("http://alpb-analytics.com/api/fetch-widgets");
+    const response = await fetch(`${API_URL}/api/fetch-widgets`);
     if (!response.ok) {
       throw new Error(`Error: ${response.statusText}`);
     }
@@ -194,18 +198,22 @@ export const updateWidget = async ({
   description,
   redirectLink,
   visibility,
+  imageUrl,
 }: WidgetType): Promise<Response> => {
   try {
-    const response = await fetch(
-      `http://alpb-analytics.com/api/edit-widget/${id}`,
-      {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ name, description, redirectLink, visibility }),
+    const response = await fetch(`${API_URL}/api/edit-widget/${id}`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
       },
-    );
+      body: JSON.stringify({
+        name,
+        description,
+        redirectLink,
+        visibility,
+        imageUrl,
+      }),
+    });
 
     if (!response.ok) {
       throw new Error("Failed to update widget");

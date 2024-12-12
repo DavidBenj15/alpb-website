@@ -1,15 +1,16 @@
 /**
  * Widget Component
  *
- * This component represents a single widget, displaying its information and providing actions 
+ * This component represents a single widget, displaying its information and providing actions
  * such as editing, launching, and favoriting. It uses `Card` as the container for a structured layout.
  * Developers (`isDev` users) can edit the widget details, and all users can toggle the favorite state.
  */
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Button } from "../ui/button"; // Styled button component
 import Image from "next/image"; // Next.js image optimization component
 import { HeartIcon, HeartFilledIcon, AngleIcon } from "@radix-ui/react-icons"; // Radix UI icons
+import { useRouter } from "next/navigation";
 import {
   Card,
   CardContent,
@@ -28,6 +29,7 @@ import { WidgetType } from "@/data/types"; // Type definitions for widgets
 import { useStore } from "@nanostores/react"; // Nanostores for state management
 import { $favWidgetIds, setTargetWidget } from "@/lib/store"; // Global state and actions
 import useMutationWidgets from "@/app/hooks/use-mutation-widgets"; // Custom hook for widget mutations
+import { Separator } from "../ui/separator";
 
 /**
  * WidgetProps Interface
@@ -54,20 +56,25 @@ export default function Widget({
   imageUrl,
   isDev,
   visibility,
-  redirectLink,
+  redirectUrl,
 }: WidgetProps) {
   const [isDialogOpen, setIsDialogOpen] = useState(false); // Local state for dialog visibility
   const { toggleFavWidget } = useMutationWidgets(); // Custom hook for toggling favorites
   const favWidgets = useStore($favWidgetIds); // Global state for favorite widgets
 
+  const router = useRouter();
   /**
    * Handles widget redirection.
    * @TODO Implement redirect logic.
    */
   const redirect = () => {
-    console.log("Redirect to:", redirectLink); // Placeholder for redirection logic
+    if (redirectUrl) {
+      router.push(redirectUrl);
+    } else {
+      console.error("Redirect link is missing or invalid.");
+    }
   };
-
+  
   /**
    * Toggles the widget's favorite status.
    */
@@ -86,30 +93,19 @@ export default function Widget({
       description,
       imageUrl,
       visibility,
-      redirectLink,
+      redirectUrl,
     });
     setIsDialogOpen(true);
   };
 
   return (
     <Card className="w-[350px]">
-      {/* Header Section */}
-      <CardHeader>
-        <div className="flex items-center">
-          {/* Avatar with fallback */}
-          <Avatar className="mr-5">
-            <AvatarImage src={imageUrl || ""} alt={name} />
-            <AvatarFallback>{name.charAt(0)}</AvatarFallback>
-          </Avatar>
-          <CardTitle>{name}</CardTitle>
-        </div>
-      </CardHeader>
 
       {/* Image Section */}
-      <div className="flex justify-center bg-gray-50 w-full mb-5">
-        <div className="h-[175px] py-5 flex justify-center items-center">
-          {imageUrl ? (
-            <Image src={imageUrl} alt={name} width="150" height="150" />
+      <div className="flex justify-center w-full mb-5">
+        <div className="h-[175px] py-5 bg-gray-50 w-full flex justify-center items-center">
+          {imageUrl && imageUrl !== "default" ? (
+            <Image src={imageUrl} alt={name} width="150" height="150" className="rounded-full"/>
           ) : (
             <AngleIcon className="size-10 fill-current text-gray-400" />
           )}
@@ -153,4 +149,3 @@ export default function Widget({
     </Card>
   );
 }
-

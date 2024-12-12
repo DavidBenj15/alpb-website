@@ -1,9 +1,13 @@
+import dotenv from "dotenv";
+
+dotenv.config();
+
 /**
  * Frontend API utility functions for user authentication and management.
  * Includes functions to sign up and log in users via the backend API.
  */
-
-import { useAuth } from "@/app/contexts/AuthContext"; // Import AuthContext for authentication state management
+const DEBUG = false;
+const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
 /**
  * Signs up a new user by sending their details to the backend API.
@@ -25,13 +29,17 @@ export async function signUpUser(data: {
   role: string;
 }) {
   try {
-    const response = await fetch("http://alpb-analytics.com/api/register-user", {
+    const startTime = performance.now();
+    const response = await fetch(`${API_URL}/api/register-user`, {
       method: "POST", // HTTP POST request
       headers: {
         "Content-Type": "application/json", // Content type for JSON payload
       },
       body: JSON.stringify(data), // Convert user data to JSON format
     });
+    const endTime = performance.now();
+    const authTime = endTime - startTime;
+    DEBUG && console.log(`Time to sign up: ${authTime}`);
 
     const result = await response.json(); // Parse the JSON response
 
@@ -57,13 +65,17 @@ export async function signUpUser(data: {
  */
 export const loginUser = async (email: string, password: string) => {
   try {
-    const response = await fetch("http://alpb-analytics.com/api/login-user", {
+    const startTime = performance.now();
+    const response = await fetch(`${API_URL}/api/login-user`, {
       method: "POST", // HTTP POST request
       headers: {
         "Content-Type": "application/json", // Content type for JSON payload
       },
       body: JSON.stringify({ email, password }), // Convert credentials to JSON format
     });
+    const endTime = performance.now();
+    const authTime = endTime - startTime;
+    DEBUG && console.log(`Time to sign in: ${authTime}`);
 
     const data = await response.json(); // Parse the JSON response
 

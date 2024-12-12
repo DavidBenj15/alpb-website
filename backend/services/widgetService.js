@@ -2,6 +2,9 @@ import pkg from 'aws-sdk';
 const { APIGateway } = pkg;
 const apiGateway = new APIGateway({ region: 'us-east-2' });
 import pool from '../db.js';  // PostgreSQL connection setup
+import { logWithFunctionName } from '../utils/logging.js';
+
+const DEBUG = true;
 
 // Function to register a widget
 export async function registerWidget(user_id, widget_name, description, visibility, widgetProps) {
@@ -24,14 +27,15 @@ export async function registerWidget(user_id, widget_name, description, visibili
     }
 }
 
-export async function updateWidget({ widgetId, widget_name, description, redirectLink, visibility }) {
+export async function updateWidget({ widgetId, widgetName, description, redirectLink, visibility, imageUrl }) {
+    console.log({imageUrl})
     const editQuery = `
         UPDATE widgets
-        SET widget_name = $1, description = $2, redirect_link = $3, visibility = $4
-        WHERE widget_id = $5
+        SET widget_name = $1, description = $2, redirect_link = $3, visibility = $4, image_url = $5
+        WHERE widget_id = $6
     `;
     try {
-        const result = await pool.query(editQuery, [widget_name, description, redirectLink, visibility, widgetId]);
+        const result = await pool.query(editQuery, [widgetName, description, redirectLink, visibility, imageUrl, widgetId]);
         return { result, message: "Widget edited successfully" };
     } catch (error) {
         console.error('Error updating widget:', error);
@@ -78,18 +82,19 @@ export async function generateApiKeyForUser(user_id, email) {
         stageKeys: [], // You can specify stages if needed
     };
 
+    DEBUG && logWithFunctionName(params);
+
     try {
         const apiKey = await apiGateway.createApiKey(params).promise();
-
+        DEBUG && logWithFunctionName(apiKey);
         if (!apiKey.id) {
             throw new Error('Failed to generate API key: no ID returned');
         }
-
         await associateApiKeyWithUsagePlan(apiKey.id, process.env.USAGE_PLAN_ID);
         await saveApiKeyToDatabase(user_id, apiKey.id);
         return apiKey.id;
     } catch (err) {
-        console.error('Error generating API Key:', err);
+        DEBUG && logWithFunctionName(err);
         throw new Error('Failed to generate API key');
     }
 }
@@ -100,7 +105,7 @@ export async function associateApiKeyWithUsagePlan(apiKeyId, usagePlanId) {
         keyType: 'API_KEY',
         usagePlanId: usagePlanId
     };
-
+    DEBUG && logWithFunctionName(params);
     try {
         await apiGateway.createUsagePlanKey(params).promise();
         console.log('API Key associated with Usage Plan');
@@ -156,7 +161,6 @@ export async function getUserData(userCognitoID) {
 
 export async function createApprovedWidget({ widget_name, description, visibility }) {
     try {
-        console.log("widget name:", widget_name)
         const query = `
             INSERT INTO widgets (widget_name, description, visibility, status, created_at)
             VALUES ($1, $2, $3, $4, NOW())

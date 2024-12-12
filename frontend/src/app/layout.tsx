@@ -1,6 +1,5 @@
 import "./globals.css";
 import { AuthProvider } from "./contexts/AuthContext";
-import Navbar from "./components/navbar/Navbar";
 
 export const metadata = {
   title: "ALPB Analytics Platform widget registration example",

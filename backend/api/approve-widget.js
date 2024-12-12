@@ -13,6 +13,9 @@ import {
     createUserWidgetRelation 
 } from '../services/widgetService.js'; // Import services related to widgets and users
 import sendApiKeyEmail from '../services/emailService.js'; // Import the email service for sending API keys
+import { logWithFunctionName } from '../utils/logging.js';
+
+const DEBUG = true;
 
 const router = express.Router(); // Create a new Express router instance
 
@@ -28,10 +31,11 @@ const router = express.Router(); // Create a new Express router instance
  */
 router.post('/', async (req, res) => {
     const { requestId } = req.body; // Extract requestId from the request body
+    DEBUG && logWithFunctionName({requestId});
     try { 
         // Retrieve the request data based on requestId
         const requestData = await getRequestData(requestId);
-
+        DEBUG && logWithFunctionName({requestData});
         // Extract the user's Cognito ID from the request data
         const userCognitoID = requestData['user_id'];
 
@@ -43,13 +47,13 @@ router.post('/', async (req, res) => {
         const userData = await getUserData(userCognitoID);
         const userID = userData['user_id']; // Extract the user ID
         const userEmail = userData['email']; // Extract the user's email
-
+        DEBUG && logWithFunctionName({userID, userEmail});
         // Generate an API key for the user
         const apiKey = await generateApiKeyForUser(userID, userEmail);
-
+        DEBUG && logWithFunctionName({apiKey});
         // Create a relation between the user and the widget
         const userWidgetRelation = await createUserWidgetRelation(userID, widgetID, apiKey);
-
+        DEBUG && logWithFunctionName(userWidgetRelation);
         // Send the API key to the user via email
         await sendApiKeyEmail(userEmail, apiKey);
 

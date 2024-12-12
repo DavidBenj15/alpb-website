@@ -1,7 +1,7 @@
 /**
  * TextareaInput Component
  *
- * A reusable textarea component for forms. It supports labels, placeholders, 
+ * A reusable textarea component for forms. It supports labels, placeholders,
  * and required fields, and is styled with utility classes.
  */
 
@@ -59,4 +59,3 @@ export default function TextareaInput({
     </div>
   );
 }
-

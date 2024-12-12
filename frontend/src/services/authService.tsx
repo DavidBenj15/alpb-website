@@ -1,5 +1,6 @@
 import AWS from "aws-sdk";
 
+const DEBUG = false;
 // Initialize the Cognito service provider with the specified region
 const cognito = new AWS.CognitoIdentityServiceProvider({
   region: "us-east-2",
@@ -50,9 +51,10 @@ export const signInUser = async (email: string, password: string) => {
       PASSWORD: password,
     },
   };
-
+  console.log("called")
   try {
     const result = await cognito.initiateAuth(params).promise();
+    // TODO if we reach here, get user by email from db
     return result.AuthenticationResult; // Contains the tokens (ID, Access, Refresh tokens)
   } catch (error: unknown) {
     if (error instanceof Error) {

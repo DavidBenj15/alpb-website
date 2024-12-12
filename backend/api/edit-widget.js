@@ -25,19 +25,21 @@ const router = Router(); // Create a new Express Router instance
 router.patch('/:id', validationMiddleware(editWidgetSchema), async (req, res) => {
 
     // Destructure widget update data from the request body
-    const { name, description, redirectLink, visibility } = req.body;
+    const { name, description, redirectLink, visibility, imageUrl } = req.body;
 
     // Parse the widget ID from the request parameters
     const widgetId = Number(req.params.id);
 
     try {
+        console.log(req.body)
         // Call the service function to update the widget in the database
         const result = await updateWidget({ 
             widgetId, 
             widgetName: name, 
             description, 
             redirectLink, 
-            visibility 
+            visibility,
+            imageUrl
         });
 
         // Respond with the updated widget data

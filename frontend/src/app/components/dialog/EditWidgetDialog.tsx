@@ -19,10 +19,11 @@ import {
 import { Input } from "../ui/input"; // Input component
 import { Label } from "../ui/label"; // Label component
 import { Checkbox } from "../ui/checkbox"; // Checkbox component
-import { useState } from "react"; // React state management
+import { useEffect, useState } from "react"; // React state management
 import { useStore } from "@nanostores/react"; // Hook to access nanostores
 import { $targetWidget } from "@/lib/store"; // Store to manage the target widget being edited
 import useMutationWidgets from "@/app/hooks/use-mutation-widgets"; // Hook for widget mutations
+import IconSelector from "./IconSelector";
 
 /**
  * Props for the EditWidgetDialog component.
@@ -50,14 +51,15 @@ const EditWidgetDialog: React.FC<EditWidgetDialogProps> = ({
   // Local state for widget fields
   const [name, setName] = useState(targetWidget.name || "");
   const [description, setDescription] = useState(
-    targetWidget.description || ""
+    targetWidget.description || "",
   );
   const [deploymentLink, setDeploymentLink] = useState(
-    targetWidget.redirectLink || ""
+    targetWidget.redirectLink || "",
   );
   const [visibility, setVisibility] = useState(
-    targetWidget.visibility || "Private"
+    targetWidget.visibility || "Private",
   );
+  const [imageUrl, setImageUrl] = useState(targetWidget.imageUrl || "default");
 
   const { editWidget } = useMutationWidgets(); // Hook for editing widgets
 
@@ -73,6 +75,7 @@ const EditWidgetDialog: React.FC<EditWidgetDialogProps> = ({
         description,
         redirectLink: deploymentLink,
         visibility,
+        imageUrl,
       });
       onClose(); // Close the dialog after saving
     } catch (error) {
@@ -86,7 +89,7 @@ const EditWidgetDialog: React.FC<EditWidgetDialogProps> = ({
         <AlertDialogHeader>
           <AlertDialogTitle>Edit Widget</AlertDialogTitle>
           <AlertDialogDescription>
-            {"Update the widget's details below and save your changes."}
+            {/* {"Update the widget's details below and save your changes."} */}
           </AlertDialogDescription>
         </AlertDialogHeader>
 
@@ -127,6 +130,11 @@ const EditWidgetDialog: React.FC<EditWidgetDialogProps> = ({
             />
           </div>
 
+          <div>
+            <Label>Icon</Label>
+            <IconSelector setImgUrl={setImageUrl} imgUrl={imageUrl} />
+          </div>
+
           {/* Visibility Options */}
           <div>
             <Label>Visibility</Label>
@@ -161,4 +169,3 @@ const EditWidgetDialog: React.FC<EditWidgetDialogProps> = ({
 };
 
 export default EditWidgetDialog;
-

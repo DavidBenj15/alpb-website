@@ -62,11 +62,20 @@ router.post('/', async (req, res) => {
 
     // Step 3: Return the combined data (Cognito tokens + custom database info)
     res.status(200).json({
-      accessToken: AccessToken, // Cognito access token
-      idToken: IdToken, // Cognito ID token
-      refreshToken: RefreshToken, // Cognito refresh token
-      role: user.role, // Example: custom user role from the database
-      user: user, // Additional user data
+      authData: {
+        accessToken: AccessToken,
+        idToken: IdToken,
+        refreshToken: RefreshToken,
+        cognitoUserId: user["cognito_user_id"],
+      },
+      user: {
+        id: user.user_id,
+        first: user.first_name,
+        last: user.last_name,
+        email: user.email,
+        role: user.role,
+        favWidgetsIds: user.fav_widgets_ids,
+      }
     });
 
   } catch (error) {

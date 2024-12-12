@@ -19,12 +19,17 @@ import {
 import { Button } from "../ui/button"; // Importing a custom button component
 import { MixerVerticalIcon } from "@radix-ui/react-icons"; // Importing an icon from Radix UI
 import { useStore } from "@nanostores/react"; // Importing nanostores state management hooks
-import { $activeCategoryIds, $filters, addFilter, removeFilter } from "@/lib/store"; // Importing stores and actions
+import {
+  $activeCategoryIds,
+  $filters,
+  addFilter,
+  removeFilter,
+} from "@/lib/store"; // Importing stores and actions
 import { useState, useEffect } from "react"; // React hooks for state and lifecycle management
 
 /**
  * CategoriesDropdown Component
- * 
+ *
  * @returns {JSX.Element} - A dropdown menu for category selection and filtering.
  */
 function CategoriesDropdown() {
@@ -59,8 +64,8 @@ function CategoriesDropdown() {
         <DropdownMenuGroup>
           <DropdownMenuItem>
             <DropdownMenuCheckboxItem
-              // checked={} // Add logic to determine if "Favorites" is checked
-              // onCheckedChange={} // Add handler for toggling "Favorites"
+            // checked={} // Add logic to determine if "Favorites" is checked
+            // onCheckedChange={} // Add handler for toggling "Favorites"
             >
               Favorites
             </DropdownMenuCheckboxItem>

@@ -1,5 +1,10 @@
-import { atom } from "nanostores";
-import { WidgetType } from "@/data/types";
+import { atom, map } from "nanostores";
+import { persistentMap } from '@nanostores/persistent'
+import { UserType, WidgetType } from "@/data/types";
+import { logger } from "@nanostores/logger";
+
+// Allow debug messages
+const DEBUG = false;
 
 const emptyWidget: WidgetType = {
   id: -1,
@@ -41,6 +46,7 @@ export function updateStoreWidget({
   description,
   visibility,
   redirectLink,
+  imageUrl,
 }: WidgetType) {
   $widgets.set(
     $widgets.get().map((widget) => {
@@ -51,6 +57,7 @@ export function updateStoreWidget({
           ...(description !== undefined && { description }),
           ...(visibility !== undefined && { visibility }),
           ...(redirectLink !== undefined && { redirectLink }),
+          ...(imageUrl !== undefined && { imageUrl }),
         };
       } else {
         return widget;
@@ -128,3 +135,31 @@ export function incrementFiltersVersion() {
 export function incrementWidgetsVersion() {
   $widgetsVersion.set($widgetsVersion.get() + 1);
 }
+
+////////////////////
+/////// User ///////
+////////////////////
+const emptyUser: UserType = {
+  id: "",
+  first: "",
+  last: "",
+  email: "",
+  role: "",
+}
+
+export const $user = persistentMap<UserType>("user:", emptyUser);
+
+export function setUser(user: UserType) {
+  $user.set(user);
+}
+
+export function clearUser() {
+  $user.set(emptyUser);
+}
+
+// Logger for nanostores
+let destroy =
+  DEBUG &&
+  logger({
+    User: $user
+  });

@@ -28,7 +28,7 @@ router.post('/', async (req, res) => {
     try {
         // Call the service function to register the widget and associate it with the user
         const result = await registerWidget(userId, widgetName, description, visibility);
-
+        console.log({result});
         // Respond with the result of the registration
         res.status(200).json(result);
     } catch (error) {
