@@ -196,7 +196,7 @@ export const updateWidget = async ({
   id,
   name,
   description,
-  redirectLink,
+  redirectUrl,
   visibility,
   imageUrl,
 }: WidgetType): Promise<Response> => {
@@ -209,7 +209,7 @@ export const updateWidget = async ({
       body: JSON.stringify({
         name,
         description,
-        redirectLink,
+        redirectLink: redirectUrl,
         visibility,
         imageUrl,
       }),

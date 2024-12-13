@@ -23,7 +23,7 @@ function useQueryWidgets() {
       );
       setWidgets([...filteredWidgets]);
       // Fetch favorite widget IDs for the user
-      const favWidgetIds = await getFavorites(user.id);
+      const favWidgetIds = await getFavorites(parseInt(user.id));
       setFavWidgetIds(favWidgetIds);
     } catch (error) {
       console.error("Error fetching widgets", error);

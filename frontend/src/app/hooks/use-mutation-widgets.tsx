@@ -19,7 +19,7 @@ function useMutationWidgets() {
     id,
     name,
     description,
-    redirectLink,
+    redirectUrl,
     visibility,
     imageUrl,
   }: WidgetType) => {
@@ -28,7 +28,7 @@ function useMutationWidgets() {
         id,
         name,
         description,
-        redirectLink,
+        redirectUrl,
         visibility,
         imageUrl,
       });
@@ -37,7 +37,7 @@ function useMutationWidgets() {
         name,
         description,
         visibility,
-        redirectLink,
+        redirectUrl,
         imageUrl,
       }); // Update the widget in the store
     } catch (error) {
@@ -48,11 +48,11 @@ function useMutationWidgets() {
   const toggleFavWidget = async (widgetId: number) => {
     try {
       if (favWidgetIds.has(widgetId)) {
-        await removeFavorite(user.id, widgetId); // Remove widget from favorites
+        await removeFavorite(parseInt(user.id), widgetId); // Remove widget from favorites
         removeFavWidgetId(widgetId); // Update the store to reflect removal
         return "removed";
       } else {
-        await addFavorite(user.id, widgetId); // Add widget to favorites
+        await addFavorite(parseInt(user.id), widgetId); // Add widget to favorites
         addFavWidgetId(widgetId); // Update the store to reflect addition
         return "added";
       }
