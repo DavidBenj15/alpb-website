@@ -236,7 +236,7 @@ router.post("/validate-session", authGuard, async (req, res) => {
   })
 });
 
-router.post("/generate-token", authGuard, validationMiddleware(generateTokenSchema), async (req, res) => {
+router.post("/generate-token", authGuard, validationMiddleware({ bodySchema: generateTokenSchema }), async (req, res) => {
   const { userId, publicWidgetId } = req.body;
   try {
     // Ensure session is valid (w/ corresponding user)

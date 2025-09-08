@@ -3,8 +3,7 @@
  * Ensures that requests adhere to the expected structure and constraints.
  */
 
-import { ZodError, ZodObject, ZodRawShape } from "zod"; // Import Zod library for schema validation
-import { Request, Response, NextFunction } from "express";
+import { ZodError } from "zod"; // Import Zod library for schema validation
 
 /**
  * Validation middleware factory.
@@ -13,16 +12,12 @@ import { Request, Response, NextFunction } from "express";
  * @param {z.ZodSchema} schema - The Zod schema to validate the request body against.
  * @returns {Function} Middleware function for request validation.
  */
-export function validationMiddleware<T extends ZodRawShape>({
+export function validationMiddleware({
   bodySchema,
   paramsSchema,
   querySchema,
-}: {
-  bodySchema?: ZodObject<T>;
-  paramsSchema?: ZodObject<T>;
-  querySchema?: ZodObject<T>;
-}) {
-  return (req: Request, res: Response, next: NextFunction) => {
+} = {}) {
+  return (req, res, next) => {
     try {
       // Validate the request body if a schema is provided
       if (bodySchema) {
@@ -65,3 +60,4 @@ export function validationMiddleware<T extends ZodRawShape>({
     }
   };
 }
+

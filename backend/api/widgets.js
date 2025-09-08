@@ -1,12 +1,12 @@
 import { Router } from "express";
-import { validationMiddleware } from "../middleware/validation-middleware.ts";
+import { validationMiddleware } from "../middleware/validation-middleware.js";
 import pool from "../db.js";
 import {
   addCategoryToWidgetSchema,
   editWidgetSchema,
   queryParamsSchema,
   registerWidgetSchema,
-} from "../validators/schemas.ts";
+} from "../validators/schemas.js";
 import {
   createApprovedWidget,
   getUserData,
