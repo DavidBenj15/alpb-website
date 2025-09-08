@@ -8,7 +8,10 @@ dotenv.config();
  * Includes functions to sign up and log in users via the backend API.
  */
 const DEBUG = false;
-const API_URL = process.env.NEXT_PUBLIC_API_URL;
+// Use empty string for relative paths when in development
+const API_URL = process.env.NODE_ENV === 'production' 
+  ? process.env.NEXT_PUBLIC_API_URL 
+  : '';
 
 /**
  * Signs up a new user by sending their details to the backend API.
