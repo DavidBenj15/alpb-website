@@ -18,7 +18,11 @@ import teams from "./api/teams.js";
 import categories from "./api/widget-categories.js";
 import developers from "./api/developers.js";
 import league from "./api/league.js";
+
 const SESSION_SECRET = process.env.SESSION_SECRET;
+if (!SESSION_SECRET) {
+  throw new Error('SESSION_SECRET environment variable is not set');
+}
 
 // Initialize the Express app
 const app = express();

@@ -12,9 +12,9 @@ Visit [https://alpb-analytics.com](https://alpb-analytics.com/) to get started.
 i. Navigate to the `backend` directory.\
 ii. Install packages using `npm install`.\
 iii. Rename the `.env.example` file to `.env` and configure the environment variables.\
-iv. Run `npm start`. This will start the server at `http://localhost:3001`
+iv. Run `npm run dev`. This will start the server at `http://localhost:3001`
 3. To run the frontend:\
 i. Navigate to `frontend` directory.\
 ii. Install packages using `npm install`.\
 iii. Rename the `.env.example` file to `.env`and configure the environment variables.\
-iv. Run `npm dev`. This will run the application at `http://localhost:3000`.
+iv. Run `npm run dev`. This will run the application at `http://localhost:3000`.
