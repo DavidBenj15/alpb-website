@@ -102,8 +102,34 @@ app.get("/", (req, res) => {
 const PORT = process.env.PORT || 3001;
 
 /**
- * Start the server and listen for incoming requests.
+ * Start the server with retry logic for port in use errors
  */
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
-});
+const startServer = (port: number) => {
+  const server = app.listen(port, () => {
+    console.log(`Server is running on port ${port}`);
+  }).on('error', (err: NodeJS.ErrnoException) => {
+    if (err.code === 'EADDRINUSE') {
+      console.log(`Port ${port} is in use, retrying with port ${port + 1}...`);
+      // No need to close the server, as it failed to listen.
+      setTimeout(() => startServer(port + 1), 200); // Retry after a short delay
+    } else {
+      console.error('Server error:', err);
+      process.exit(1);
+    }
+  });
+
+  // Graceful shutdown for clean restarts
+  const gracefulShutdown = (signal: string) => {
+    console.log(`${signal} received: closing HTTP server`);
+    server.close(() => {
+      console.log('HTTP server closed.');
+      process.exit(0);
+    });
+  };
+
+  process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
+  process.on('SIGINT', () => gracefulShutdown('SIGINT')); // Handle Ctrl+C
+};
+
+// Start the server
+startServer(Number(PORT));
