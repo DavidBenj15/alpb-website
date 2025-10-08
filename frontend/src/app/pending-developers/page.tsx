@@ -1,77 +1,68 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import {
-  fetchPendingDevelopers,
-  approveDeveloper,
-  declineDeveloper,
-} from "@/api/developer";
-import { PendingDeveloper } from "@/data/types";
-import ProtectedRoute from "../components/ProtectedRoutes";
+import { AppSidebar } from "@/app/components/app-sidebar";
 import {
   SidebarInset,
   SidebarProvider,
   SidebarTrigger,
 } from "@/app/components/ui/sidebar";
-import { useAuth } from "../contexts/AuthContext";
-import DashboardLoading from "../components/dashboard/dashboard-loading";
-import { AppSidebar } from "@/app/components/app-sidebar";
+import ProtectedRoute from "../components/ProtectedRoutes";
+import { fetchPendingDevelopers, approveDeveloper, declineDeveloper } from "@/api/developer";
+import { PendingDeveloper } from "@/data/types";
 import { Card } from "../components/ui/card";
 import { Button } from "../components/ui/button";
-import { useToast } from "@/hooks/use-toast";
 
 export default function PendingDevelopersPage() {
   const [requests, setRequests] = useState<PendingDeveloper[]>([]);
   const [status, setStatus] = useState<string | null>(null);
-  const { loading } = useAuth();
-  const { toast } = useToast();
+  const [loading, setLoading] = useState(true);
 
+  // Fetch pending developers from the backend
   useEffect(() => {
     const loadPendingDevelopers = async () => {
       try {
+        setLoading(true);
         const data = await fetchPendingDevelopers();
         setRequests(data);
       } catch (error) {
-        console.error("Error fetching developers:", error);
+        console.error("Error fetching pending developers:", error);
+        setStatus("Error loading pending developers");
+      } finally {
+        setLoading(false);
       }
     };
 
     loadPendingDevelopers();
-  }, []);
+  }, [setLoading]);
 
+  // Handle approving a developer
   const handleApproveDeveloper = async (requestId: string) => {
     try {
-      await approveDeveloper(requestId);
-      toast({
-        title: "Success",
-        description: "Developer account approved and API key sent",
-        variant: "success",
-      });
-      setRequests((prev) => prev.filter((req) => req.request_id !== requestId));
+      const result = await approveDeveloper(requestId);
+      setStatus(result.message || "Developer approved successfully");
+
+      // Remove the approved developer from the list
+      setRequests((prevDevelopers) =>
+        prevDevelopers.filter((request) => request.request_id !== requestId),
+      );
     } catch (error: any) {
-      toast({
-        title: "Error approving developer",
-        description: error?.message || undefined,
-        variant: "destructive",
-      });
+      setStatus(error.message || "Error approving developer.");
     }
   };
 
+  // Handle declining a developer
   const handleDeclineDeveloper = async (requestId: string) => {
     try {
-      await declineDeveloper(requestId);
-      toast({
-        title: "Success",
-        description: "Developer declined",
-        variant: "success",
-      });
-      setRequests((prev) => prev.filter((req) => req.request_id !== requestId));
+      const result = await declineDeveloper(requestId);
+      setStatus(result.message || "Developer declined successfully");
+      
+      // Remove the declined developer from the list
+      setRequests((prevDevelopers) =>
+        prevDevelopers.filter((request) => request.request_id !== requestId),
+      );
     } catch (error: any) {
-      toast({
-        title: "Error declining developer",
-        description: error?.message || undefined,
-        variant: "destructive",
-      });
+      setStatus(error.message || "Error declining developer.");
     }
   };
 
@@ -80,48 +71,45 @@ export default function PendingDevelopersPage() {
       <SidebarProvider>
         <AppSidebar />
         <SidebarInset>
-          {" "}
-          {/* Ensures the route is protected and only accessible to authenticated users */}
           <SidebarTrigger />
-          {loading ? (
-            <DashboardLoading />
-          ) : (
-            <div className="container mx-auto p-8">
+          <div className="container mx-auto p-8">
               <h1 className="text-3xl mb-8 text-center">Pending Developers</h1>
 
-              {status && (
+            {status && (
                 <p className="text-center text-green-600 mb-4 font-semibold">
-                  {status}
+                {status}
                 </p>
-              )}
+            )}
 
-              {requests.length === 0 ? (
-                <p className="text-center text-gray-600">
-                  No pending developers.
-                </p>
-              ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-                  {requests.map((request) => (
-                    <Card
-                      key={request.request_id}
-                      className="p-6 bg-white rounded-lg shadow-md border border-gray-200"
-                    >
-                      <h3 className="text-lg font-semibold text-gray-800 mb-2">
-                        {request.first_name} {request.last_name}
-                      </h3>
-                      <p className="text-gray-600 mb-2">{request.email}</p>
+            {loading ? (
+              <p className="text-center text-gray-600">Loading pending developers...</p>
+            ) : requests.length === 0 ? (
+              <p className="text-center text-gray-600">
+                No pending developer requests.
+              </p>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+                {requests.map((request) => (
+                  <Card
+                    key={request.request_id}
+                    className="p-6 bg-white rounded-lg shadow-md border border-gray-200"
+                  >
+                    <h3 className="text-lg font-semibold text-gray-800 mb-2">
+                      {request.first_name} {request.last_name}
+                    </h3>
+                    <p className="text-gray-600 mb-2">{request.email}</p>
                       <p className="text-sm text-yellow-600 mb-4">
-                        Status: {request.status}
-                      </p>
+                      Status: {request.status}
+                    </p>
                       <div className="flex justify-between">
                         <Button
                           className="bg-red-500 hover:bg-red-400"
                           onClick={() =>
                             handleDeclineDeveloper(request.request_id)
                           }
-                        >
-                          Decline
-                        </Button>
+                      >
+                        Decline
+                      </Button>
                         <Button
                           className="bg-green-500 hover:bg-green-400"
                           onClick={() =>
@@ -130,13 +118,12 @@ export default function PendingDevelopersPage() {
                         >
                           Approve
                         </Button>
-                      </div>
-                    </Card>
-                  ))}
-                </div>
-              )}
-            </div>
-          )}
+                    </div>
+                  </Card>
+                ))}
+              </div>
+            )}
+          </div>
         </SidebarInset>
       </SidebarProvider>
     </ProtectedRoute>

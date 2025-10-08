@@ -162,25 +162,6 @@ export async function removeRequest(requestId) {
   }
 }
 
-export async function createUserWidgetRelation(
-  user_id,
-  widgetId,
-  role = "owner",
-) {
-  try {
-    const query = `
-            INSERT INTO user_widget (user_id, widget_id, role, joined_at)
-            VALUES ($1, $2, $3, NOW())
-            RETURNING *;
-        `;
-    const result = await pool.query(query, [user_id, widgetId, role]);
-    return result.rows[0]; // Return the newly created relation
-  } catch (error) {
-    console.error("Error creating user-widget relation:", error.message);
-    throw error;
-  }
-}
-
 export async function generateApiKeyForUser(user_id, email) {
   const params = {
     name: `ApiKey-${user_id}`,
@@ -267,41 +248,63 @@ export async function getUserData(userId) {
   }
 }
 
-export async function createApprovedWidget({
-  widget_name,
-  description,
-  visibility,
-  selectedTeams = [],
-}) {
+export async function createApprovedWidget(requestId) {
+  const client = await pool.connect();
   try {
-    
-    const query = `
-            INSERT INTO widgets (widget_name, description, visibility, status, created_at)
-            VALUES ($1, $2, $3, $4, NOW())
-            RETURNING widget_id;
-        `;
+    await client.query('BEGIN');
+
+    // Get the pending request
+    const requestResult = await client.query(`
+      SELECT * FROM requests WHERE request_id = $1 AND status = 'pending'
+    `, [requestId]);
+
+    if (requestResult.rowCount === 0) {
+      throw new Error('Pending widget request not found');
+    }
+
+    const request = requestResult.rows[0];
+
+    // Create the approved widget
+    const widgetQuery = `
+      INSERT INTO widgets (widget_name, description, visibility, status, created_at)
+      VALUES ($1, $2, $3, $4, NOW())
+      RETURNING widget_id;
+    `;
   
-    const result = await pool.query(query, [
-      widget_name,
-      description,
-      visibility,
+    const widgetResult = await client.query(widgetQuery, [
+      request.widget_name,
+      request.description,
+      request.visibility,
       "approved",
     ]);
 
-    const widgetId = result.rows[0].widget_id;
+    const widgetId = widgetResult.rows[0].widget_id;
     
-    // If it's a private widget, handle team access
-    if (visibility === "private" && selectedTeams && selectedTeams.length > 0) {
-      // Create team access records
-      for (const teamId of selectedTeams) {
-        await addTeamWidgetAccess(widgetId, teamId);
-      }
+    // TODO: If it's a private widget, handle team access
+    if (request.visibility === "private") {
+      // TODO: add team access logic here if needed
     }
 
-    return widgetId;
+    // Add user-widget relation
+    const userWidgetQuery = `
+      INSERT INTO user_widget (user_id, widget_id, role, joined_at)
+      VALUES ($1, $2, $3, NOW())
+      RETURNING *;
+    `;
+    await client.query(userWidgetQuery, [request.user_id, widgetId, "owner"]);
+
+    // Remove the request from pending
+    await client.query(`
+      DELETE FROM requests WHERE request_id = $1
+    `, [requestId]);
+
+    await client.query('COMMIT');
+    return { message: "Widget approved successfully", widgetId };
   } catch (error) {
-    console.error("Error creating approved widget:", error);
-    throw new Error("Failed to create approved widget");
+    await client.query('ROLLBACK');
+    throw new Error("Error creating approved widget:", error);
+  } finally {
+    client.release();
   }
 }
 
@@ -559,4 +562,34 @@ export async function deleteWidget(id) {
   const deletedWidget = result.rows[0];
 
   return deletedWidget;
+}
+
+// Get all pending widget requests
+export async function getPendingWidgets() {
+  try {
+    const query = `
+      SELECT 
+        r.request_id,
+        r.user_id,
+        r.widget_name,
+        r.description,
+        r.visibility,
+        r.status,
+        r.created_at,
+        NULL as approved_at,
+        u.first_name,
+        u.last_name,
+        u.email
+      FROM requests r
+      JOIN users u ON r.user_id = u.user_id
+      WHERE r.status = 'pending'
+      ORDER BY r.created_at DESC
+    `;
+    
+    const result = await pool.query(query);
+    return result.rows;
+  } catch (error) {
+    console.error("Error fetching pending widgets:", error);
+    throw new Error("Failed to fetch pending widgets");
+  }
 }

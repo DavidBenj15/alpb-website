@@ -2,15 +2,11 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import InputField from "../components/input/InputField";
 import SubmitButton from "../components/input/SubmitButton";
-import SelectField from "../components/input/SelectField";
 import { signUpUser } from "../../api/auth";
-import { registerPendingDeveloper } from "../../api/developer";
 import {
   Card,
   CardContent,
-  CardDescription,
   CardHeader,
   CardTitle,
 } from "@/app/components/ui/card";
@@ -25,7 +21,6 @@ import {
   SelectValue,
 } from "@/app/components/ui/select";
 import { Separator } from "@/app/components/ui/separator";
-import Image from "next/image";
 import LogoButton from "../components/navbar/LogoButton";
 import dynamic from "next/dynamic";
 import { useToast } from "@/hooks/use-toast";
@@ -126,25 +121,17 @@ export function SignupForm() {
         inviteToken: inviteToken || undefined,
       };
 
-      if (userData.role === "widget developer") {
-        // Remove inviteToken for widget developers since they don't need it
-        const { inviteToken, teamRole, ...developerData } = userData;
-        await registerPendingDeveloper(developerData);
-        setSubmitStatus({
-          message:
-            "Registration pending approval. You will receive an email when approved.",
-          textClass: "text-green-600",
-        });
-        setTimeout(() => router.push("/pending-approval"), 2000);
-      } else {
-        // Existing flow for league accounts
-        await signUpUser(userData);
-        setSubmitStatus({
-          message: "Sign up successful! Redirecting...",
-          textClass: "text-green-600",
-        });
-        setTimeout(() => router.push("/confirm"), 200);
-      }
+      await signUpUser(userData);
+      setSubmitStatus({
+        message:
+          "Account created! Please check your email for confirmation code.",
+        textClass: "text-green-600",
+      });
+      const isDeveloper = userData.role === "widget developer";
+      setTimeout(() => router.push(
+        `/confirm?email=${encodeURIComponent(userData.email)}${isDeveloper ? '&type=developer' : ''}`),
+        isDeveloper ? 2000 : 200
+      );
     } catch (error) {
       setSubmitStatus({
         message:
@@ -239,7 +226,7 @@ export function SignupForm() {
                         Widget Developer
                       </SelectItem>
                       <SelectItem value="league">League</SelectItem>
-                      {/*<SelectItem value="master">Master</SelectItem>*/}
+                      {/* <SelectItem value="master">Master</SelectItem> */}
                     </SelectGroup>
                   </SelectContent>
                 </Select>

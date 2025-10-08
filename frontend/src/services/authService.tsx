@@ -6,6 +6,8 @@ const cognito = new AWS.CognitoIdentityServiceProvider({
   region: "us-east-2",
 });
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL;
+
 // Function to sign up a new user
 export const signUpUser = async (
   email: string,
@@ -64,19 +66,59 @@ export const signInUser = async (email: string, password: string) => {
   }
 };
 
+// Function to resend confirmation code
+export const resendConfirmationCode = async (email: string) => {
+  try {
+    const response = await fetch(`${API_URL}/api/auth/resend-confirmation`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        email,
+      }),
+    });
+
+    const data = await response.json();
+
+    if (!data.success) {
+      throw new Error(data.message);
+    }
+
+    return data;
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      throw new Error(`Resend confirmation error: ${error.message}`);
+    } else {
+      throw new Error("Resend confirmation error: An unknown error occurred");
+    }
+  }
+};
+
 // Function to confirm user sign up with a confirmation code
 export const confirmSignUp = async (
   email: string,
   confirmationCode: string,
 ) => {
-  const params = {
-    ClientId: process.env.NEXT_PUBLIC_COGNITO_APP_CLIENT_ID!, // Ensure this is set
-    Username: email,
-    ConfirmationCode: confirmationCode,
-  };
-
   try {
-    await cognito.confirmSignUp(params).promise();
+    const response = await fetch(`${API_URL}/api/auth/confirm-signup`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        email,
+        confirmationCode,
+      }),
+    });
+
+    const data = await response.json();
+
+    if (!data.success) {
+      throw new Error(data.message);
+    }
+
+    return data.data;
   } catch (error: unknown) {
     if (error instanceof Error) {
       throw new Error(`Confirmation error: ${error.message}`);

@@ -9,14 +9,13 @@ import {
 } from "../validators/schemas.ts";
 import {
   createApprovedWidget,
-  getUserData,
-  createUserWidgetRelation,
   getAllWidgets,
   registerWidget,
   updateWidget,
   deleteWidget,
+  getPendingWidgets,
+  removeRequest,
 } from "../services/widgetService.js";
-import authGuard from "../middleware/auth-guard.js";
 
 const selectWidgetById = `
     SELECT *
@@ -121,41 +120,6 @@ router.delete("/:id", async (req, res) => {
     });
   }
 });
-
-router.post("/create", authGuard, async (req, res) => {
-  try {
-    const userId = req.body.userId;
-    const widgetData = req.body;
-
-    // Create widget directly using the existing approved widget logic
-    const approvedID = await createApprovedWidget(widgetData);
-
-    // Get user data
-    const user = await getUserData(userId);
-    const userEmail = user["email"];
-
-    // Create user-widget relation
-    const userWidgetRelation = await createUserWidgetRelation(
-      userId,
-      approvedID,
-      "owner"
-    );
-
-    
-
-    res.status(200).json({
-      success: true,
-      message: "Widget created and API key sent via email",
-      data: userWidgetRelation,
-    });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: `Internal error: ${error.message}`,
-    });
-  }
-});
-
 
 // register a widget
 router.post(
@@ -378,7 +342,7 @@ router.get('/:widgetId/developers', async (req, res) => {
   }
 })
 
-router.get('/:widgetId/developers', async (req, res) => {
+router.post('/:widgetId/developers', async (req, res) => {
   try {
     const widgetId = parseInt(req.params.widgetId);
     const developerId = parseInt(req.body.developerId);
@@ -648,6 +612,61 @@ router.put("/:id/teams", async (req, res) => {
     res.status(500).json({
       success: false,
       message: `Internal error: ${error.message}`
+    });
+  }
+});
+
+// Get all pending widget requests
+router.get("/pending", async (req, res) => {
+  try {
+    const pendingWidgets = await getPendingWidgets();
+    
+    res.status(200).json({
+      success: true,
+      message: "Pending widgets retrieved successfully",
+      data: pendingWidgets
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: `Error fetching pending widgets: ${error.message}`
+    });
+  }
+});
+
+// Approve a pending widget request
+router.post("/pending/:id/approve", async (req, res) => {
+  try {
+    const requestId = parseInt(req.params.id);
+    const result = await createApprovedWidget(requestId);
+    
+    res.status(200).json({
+      success: true,
+      message: result.message,
+      data: { widgetId: result.widgetId }
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: `Error approving widget: ${error.message}`
+    });
+  }
+});
+
+// Decline a pending widget request
+router.post("/pending/:id/decline", async (req, res) => {
+  try {
+    const requestId = parseInt(req.params.id);
+    const result = await removeRequest(requestId);
+    
+    res.status(200).json({
+      success: true,
+      message: result.message
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: `Error declining widget: ${error.message}`
     });
   }
 });

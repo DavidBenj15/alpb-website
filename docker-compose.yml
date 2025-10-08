@@ -1,0 +1,66 @@
+version: '3.8'
+
+services:
+  # Backend Service
+  backend:
+    container_name: slugger-backend
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: development
+    command: sh -c "npm run dev:backend"
+    ports:
+      - "3001:3001"
+    volumes:
+      - ./backend:/app/backend
+      - /app/backend/node_modules  # Prevent local node_modules override
+    working_dir: /app
+    networks:
+      - slugger-network
+    environment:
+      - DB_HOST=alpb-1.cluster-ro-cx866cecsebt.us-east-2.rds.amazonaws.com
+      - DB_USERNAME=${DB_USERNAME}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_NAME=${DB_NAME}
+      - DB_PORT=5432
+      - PORT=3001
+      - NODE_ENV=development
+      - SESSION_SECRET=${SESSION_SECRET}
+      - JWT_SECRET=${JWT_SECRET}
+      - TOKEN_SECRET=${TOKEN_SECRET}
+      - AWS_ACCESS_KEY=${AWS_ACCESS_KEY}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+      - AWS_REGION=${AWS_REGION}
+      - COGNITO_USER_POOL_ID=${COGNITO_USER_POOL_ID}
+      - COGNITO_APP_CLIENT_ID=${COGNITO_APP_CLIENT_ID}
+      - NEXT_PUBLIC_API_URL=http://backend:3001
+      - NEXT_PUBLIC_COGNITO_APP_CLIENT_ID=${NEXT_PUBLIC_COGNITO_APP_CLIENT_ID}
+      - LAMBDA_API_BASE_URL=${LAMBDA_API_BASE_URL}
+
+  # Frontend Service
+  frontend:
+    container_name: slugger-frontend
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: development
+    command: sh -c "npm run dev:frontend"
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend:/app/frontend
+      - /app/frontend/.next
+      - /app/frontend/node_modules  # Prevent local node_modules override
+    working_dir: /app
+    environment:
+      - NODE_ENV=development
+      - NEXT_PUBLIC_API_URL=http://localhost:3001
+      - NEXT_PUBLIC_COGNITO_APP_CLIENT_ID=${NEXT_PUBLIC_COGNITO_APP_CLIENT_ID}
+    depends_on:
+      - backend
+    networks:
+      - slugger-network
+
+networks:
+  slugger-network:
+    driver: bridge

@@ -1,19 +1,14 @@
 "use client";
 
-import TextareaInput from "../components/input/TextareaInput";
-import { registerWidget, createWidget } from "../../api/widget";
+import { registerWidget } from "../../api/widget";
 import { useStore } from "@nanostores/react";
 import { useAuth } from "../contexts/AuthContext";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import InputField from "../components/input/InputField";
 import SubmitButton from "../components/input/SubmitButton";
-import SelectField from "../components/input/SelectField";
-import { signUpUser } from "../../api/auth"; // Now importing from api/auth
 import {
   Card,
   CardContent,
-  CardDescription,
   CardHeader,
   CardTitle,
 } from "@/app/components/ui/card";
@@ -34,6 +29,7 @@ import { $user } from "@/lib/userStore";
 import { useToast } from "@/hooks/use-toast";
 import { getTeams } from "@/api/teams";
 import { Checkbox } from "@/app/components/ui/checkbox";
+import { RegisterWidgetDataType } from "@/data/types";
 
 interface Team {
   team_id: string;
@@ -90,15 +86,13 @@ export function WidgetForm() {
       //   throw new Error("ID Token not found. Please log in again.");
       // }
 
-      const widgetData = {
-        widget_name: data["widget-name"],
+      const widgetData: RegisterWidgetDataType = {
+        widgetName: data["widget-name"],
         description: data["description"],
         visibility: visibility,
-        userId: user.id,
-        selectedTeams: visibility === "private" ? selectedTeams : [],
       };
 
-      await createWidget(widgetData);
+      await registerWidget(widgetData, parseInt(user.id));
       router.push("/dashboard"); // or wherever you want to redirect after success
     } catch (error) {
       console.error(error);

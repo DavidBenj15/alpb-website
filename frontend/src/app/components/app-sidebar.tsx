@@ -38,6 +38,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       isActive: false,
     },
     {
+      title: "Pending Widgets",
+      url: "/pending-widgets",
+      icon: Home,
+      isActive: false,
+    },
+    {
       title: "Register Widget",
       url: "/register-widget",
       icon: BookOpenCheck,

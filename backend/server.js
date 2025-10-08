@@ -18,6 +18,7 @@ import teams from "./api/teams.js";
 import categories from "./api/widget-categories.js";
 import developers from "./api/developers.js";
 import league from "./api/league.js";
+import auth from "./api/auth.js";
 const SESSION_SECRET = process.env.SESSION_SECRET;
 
 // Initialize the Express app
@@ -75,6 +76,8 @@ app.use("/api/developers", developers);
 
 app.use("/api/league", league);
 
+app.use("/api/auth", auth);
+
 // ---------------------------------------------------
 // Root Route
 // ---------------------------------------------------
@@ -100,6 +103,6 @@ const PORT = process.env.PORT || 3001;
 /**
  * Start the server and listen for incoming requests.
  */
-app.listen(PORT, () => {
+app.listen(PORT, "0.0.0.0", () => {
   console.log(`Server is running on port ${PORT}`);
 });

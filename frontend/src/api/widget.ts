@@ -19,7 +19,7 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
 export const registerWidget = async (
   widgetData: RegisterWidgetDataType,
-  userId: string,
+  userId: number,
 ): Promise<any> => {
   try {
     // Attach user ID to the payload
@@ -282,32 +282,6 @@ export const recordWidgetInteraction = async (
     return res.data;
   } catch (error) {
     console.error("Error recording widget interaction:", error);
-    throw error;
-  }
-};
-
-export const createWidget = async (widgetData: {
-  widget_name: string;
-  description: string;
-  visibility: string;
-  userId: string;
-  selectedTeams?: string[];
-}): Promise<any> => {
-  try {
-    const response = await fetch(`${API_URL}/api/widgets/create`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(widgetData),
-      credentials: "include",
-    });
-
-    const res = await response.json();
-    if (!res.success) {
-      throw new Error(res.message);
-    }
-    return res.data;
-  } catch (error) {
-    console.error("Error creating widget:", error);
     throw error;
   }
 };

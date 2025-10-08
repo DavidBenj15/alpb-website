@@ -49,8 +49,8 @@ export interface UserType {
   email: string;
   role: string;
   teamId: string;
-  is_admin: string;
-  [key: string]: string | undefined;
+  is_admin: boolean;
+  [key: string]: string | boolean | undefined;
 }
 
 export type UserAPIResType = {

@@ -4,11 +4,11 @@
  */
 
 import pkg from "aws-sdk"; // Import AWS SDK
-const { APIGateway, CognitoIdentityServiceProvider } = pkg;
-const apiGateway = new APIGateway({ region: "us-east-2" });
+const { CognitoIdentityServiceProvider } = pkg;
 import crypto from "crypto";
 import pool from "../db.js";
 import dotenv from "dotenv";
+import { createPendingDeveloper } from "./developerService.js";
 
 dotenv.config();
 
@@ -156,7 +156,25 @@ export async function signUpUserWithCognito(userData) {
     const cognitoResult = await cognito.signUp(params).promise();
     const cognitoUserId = cognitoResult.UserSub;
 
-    // Create user in database using existing createUser function
+    // For widget developers, add to pending table instead of users table
+    if (role === 'widget developer') {
+      // Use existing createPendingDeveloper function
+      await createPendingDeveloper({
+        email,
+        firstName,
+        lastName,
+        cognitoUserId
+      });
+
+      return {
+        userId: null,
+        cognitoUserId,
+        user: null,
+        isDeveloper: true
+      };
+    }
+
+    // For all other users, create user in database immediately
     const newUser = await createUser({
       cognitoUserId,
       email,
@@ -170,7 +188,8 @@ export async function signUpUserWithCognito(userData) {
     return {
       userId: newUser.user_id,
       cognitoUserId,
-      user: newUser
+      user: newUser,
+      isDeveloper: false
     };
   } catch (error) {
     throw new Error(`Cognito signup failed: ${error.message}`);
