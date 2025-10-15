@@ -130,7 +130,7 @@ export default function Settings() {
                   disabled
                   className="bg-gray-50"
                 />
-                {user.is_admin === "true" && (
+                {user.is_admin === true && (
                   <p className="text-sm text-blue-600 font-medium">
                     Administrator Account
                   </p>

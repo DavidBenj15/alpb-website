@@ -126,7 +126,7 @@ router.post(
   "/register",
   validationMiddleware({ bodySchema: registerWidgetSchema }),
   async (req, res) => {
-    const { widgetName, description, visibility, userId } = req.body; // Extract widget details and userId from the request body
+    const { widgetName, description, visibility, userId, teamIds } = req.body; // Extract widget details and userId from the request body
 
     try {
       const requestedWidget = await registerWidget(
@@ -134,6 +134,7 @@ router.post(
         widgetName,
         description,
         visibility,
+        teamIds || [],
       );
       res.status(200).json({
         success: true,
@@ -564,6 +565,14 @@ router.put("/:id/teams", async (req, res) => {
       return res.status(400).json({
         success: false,
         message: "Only private widgets can have team access"
+      });
+    }
+
+    // Additional validation: ensure no teams are provided for public widgets
+    if (widgetVisibility.toLowerCase() === 'public' && teamIds && teamIds.length > 0) {
+      return res.status(400).json({
+        success: false,
+        message: "Public widgets cannot have team access"
       });
     }
 

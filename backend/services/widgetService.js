@@ -22,11 +22,11 @@ export async function registerWidget(
   widgetName,
   description,
   visibility,
-  widgetProps,
+  teamIds = [],
 ) {
   const query = `
-        INSERT INTO requests (user_id, widget_name, description, visibility, status)
-        VALUES ($1, $2, $3, $4, $5)
+        INSERT INTO requests (user_id, widget_name, description, visibility, status, team_ids)
+        VALUES ($1, $2, $3, $4, $5, $6)
         RETURNING *;
       `;
   try {
@@ -38,6 +38,7 @@ export async function registerWidget(
       description,
       visibility,
       status,
+      teamIds,
     ]);
     const requestedWidget = result.rows[0];
 
@@ -280,9 +281,17 @@ export async function createApprovedWidget(requestId) {
 
     const widgetId = widgetResult.rows[0].widget_id;
     
-    // TODO: If it's a private widget, handle team access
-    if (request.visibility === "private") {
-      // TODO: add team access logic here if needed
+    // If it's a private widget, handle team access
+    if (request.visibility === "private" && request.team_ids && request.team_ids.length > 0) {
+      // Insert team access records for each selected team
+      for (const teamId of request.team_ids) {
+        await client.query(
+          `INSERT INTO widget_team_access (widget_id, team_id) 
+           VALUES ($1, $2) 
+           ON CONFLICT (widget_id, team_id) DO NOTHING`,
+          [widgetId, teamId]
+        );
+      }
     }
 
     // Add user-widget relation
@@ -576,6 +585,7 @@ export async function getPendingWidgets() {
         r.visibility,
         r.status,
         r.created_at,
+        r.team_ids,
         NULL as approved_at,
         u.first_name,
         u.last_name,

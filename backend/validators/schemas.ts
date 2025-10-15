@@ -31,6 +31,7 @@ export const registerWidgetSchema = z.object({
   description: z.string(),
   visibility: z.string(),
   userId: z.number().int().positive(),
+  teamIds: z.array(z.string().uuid()).optional(),
 });
 
 export const createUserSchema = z.object({

@@ -40,6 +40,7 @@ export interface RegisterWidgetDataType {
   widgetName: string; // The name of the widget
   description: string; // A description of the widget
   visibility: string; // Visibility status ('Public', 'Private', etc.)
+  teamIds?: string[]; // Array of team UUIDs for private widgets
 }
 
 export interface UserType {
@@ -72,6 +73,7 @@ export interface PendingWidget {
   created_at: string;
   approved_at: string;
   user_id: string;
+  team_ids?: string[];
 }
 
 export type PendingWidgetsAPIRes = APIResponse<PendingWidget[]>;

@@ -6,6 +6,7 @@ import {
   approveWidget,
   declineWidget,
 } from "../../api/widget";
+import { getTeams } from "@/api/teams";
 import { PendingWidget } from "@/data/types";
 import ProtectedRoute from "../components/ProtectedRoutes";
 import { AppSidebar } from "@/app/components/app-sidebar";
@@ -19,25 +20,36 @@ import { Button } from "../components/ui/button";
 
 export default function PendingWidgetsPage() {
   const [requests, setRequests] = useState<PendingWidget[]>([]);
+  const [teamMap, setTeamMap] = useState<Map<string, string>>(new Map());
   const [status, setStatus] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // Fetch pending widgets from the backend
+  // Fetch pending widgets and teams from the backend
   useEffect(() => {
-    const loadPendingWidgets = async () => {
+    const loadData = async () => {
       try {
         setLoading(true);
-        const data = await fetchPendingWidgets();
-        setRequests(data);
+        const [widgetsData, teamsData] = await Promise.all([
+          fetchPendingWidgets(),
+          getTeams(),
+        ]);
+        setRequests(widgetsData);
+        
+        // Create a map for quick team ID to name lookup
+        const newTeamMap = new Map<string, string>();
+        teamsData.forEach(team => {
+          newTeamMap.set(team.team_id, team.team_name);
+        });
+        setTeamMap(newTeamMap);
       } catch (error) {
-        console.error("Error fetching widgets:", error);
+        console.error("Error fetching data:", error);
         setStatus("Error loading pending widgets");
       } finally {
         setLoading(false);
       }
     };
 
-    loadPendingWidgets();
+    loadData();
   }, []);
 
   // Handle approving a widget
@@ -60,7 +72,7 @@ export default function PendingWidgetsPage() {
     try {
       const result = await declineWidget(requestId);
       setStatus("Widget declined successfully");
-      
+
       // Remove the declined widget from the list
       setRequests((prevWidgets) =>
         prevWidgets.filter((request) => request.request_id !== requestId),
@@ -68,6 +80,14 @@ export default function PendingWidgetsPage() {
     } catch (error: any) {
       setStatus(error.message || "Error declining widget.");
     }
+  };
+
+  // Helper function to get team names from team IDs
+  const getTeamNames = (teamIds?: string[]): string[] => {
+    if (!teamIds || teamIds.length === 0) return [];
+    return teamIds
+      .map(id => teamMap.get(id))
+      .filter(Boolean) as string[];
   };
 
   return (
@@ -105,6 +125,11 @@ export default function PendingWidgetsPage() {
                     <p className="text-sm text-gray-500 mb-2">
                       Visibility: {request.visibility}
                     </p>
+                    {request.visibility === "private" && request.team_ids && request.team_ids.length > 0 && (
+                      <div className="text-sm text-gray-500 mb-2">
+                        <span className="font-medium">Teams:</span> {getTeamNames(request.team_ids).join(", ")}
+                      </div>
+                    )}
                     <p className="text-sm text-yellow-600 mb-4">
                       Status: {request.status}
                     </p>
